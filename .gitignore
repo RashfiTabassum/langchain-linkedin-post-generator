@@ -1,5 +1,6 @@
 # Environment variables - DO NOT COMMIT THIS FILE
 .env
+.streamlit/secrets.toml
 __pycache__/
 *.pyc
 *.pyo

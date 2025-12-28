@@ -6,8 +6,17 @@ from linkedin_agent import LinkedInPostAgent
 import os
 from dotenv import load_dotenv
 
-# Load environment variables
+# Load environment variables from .env file (for local development)
 load_dotenv()
+
+# Helper function to get configuration from either .env or Streamlit secrets
+def get_config(key, default=None):
+    """Get config from Streamlit secrets first, then .env, then default"""
+    # Try Streamlit secrets first (for cloud deployment)
+    if hasattr(st, 'secrets') and key in st.secrets:
+        return st.secrets[key]
+    # Fall back to environment variables (for local development)
+    return os.getenv(key, default)
 
 # Page configuration
 st.set_page_config(
@@ -60,13 +69,17 @@ st.markdown('<p class="sub-header">Create professional LinkedIn posts with AI - 
 with st.sidebar:
     st.header("⚙️ Configuration")
     
-    # Check for GitHub token
-    github_token = os.getenv("GITHUB_TOKEN")
+    # Check for GitHub token from either source
+    github_token = get_config("GITHUB_TOKEN")
     if github_token:
         st.success("✅ GitHub Token configured")
     else:
         st.error("❌ GitHub Token not found!")
-        st.info("Please set GITHUB_TOKEN in your .env file")
+        st.info("""
+        **For local development:** Set GITHUB_TOKEN in your .env file
+        
+        **For Streamlit Cloud:** Add secrets in app settings
+        """)
         st.stop()
     
     st.markdown("---")
@@ -96,6 +109,8 @@ with st.sidebar:
 # Initialize session state
 if 'agent' not in st.session_state:
     try:
+        # Temporarily set environment variable for LinkedInPostAgent
+        os.environ['GITHUB_TOKEN'] = github_token
         st.session_state.agent = LinkedInPostAgent(model_name=model_name, temperature=temperature)
     except Exception as e:
         st.error(f"Error initializing agent: {str(e)}")
