@@ -1,0 +1,15 @@
+# Environment variables - DO NOT COMMIT THIS FILE
+.env
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+.DS_Store
